@@ -1,8 +1,17 @@
 [package]
-name = "GNQC-rs"
+name = "gnqc-rs"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+structopt = "0.3"
+anyhow = "1.0"
+thiserror = "1.0.37"
+log = "0.4.8"
+env_logger = "0.8.4"
+bstr_parse = "0.1.0"
+rayon = "1.5.3"
+csv = "1.2.1"
+genawaiter = "0.99.1"
