@@ -20,37 +20,35 @@ use self::checkfailure::location::Location;
 #[allow(dead_code)]
 pub type CellContents = [u8];
 
-#[allow(dead_code)]
-pub struct CellSettings {
-    // Determines what checks are carried out for a particular kind of
-    // *cell*, in addition to the standard checks.  For example, if the
-    // cell is holding the name of a probe, then no number checks will be
-    // carried out, whereas if it's a cell containing a number, this will
-    // hold the check(s) for that particular number type, e.g. SE, or
-    // average.
-
-    // Examples:
-    //    CellSettings(cell_check_ProbeSet)
-    //    CellSettings(cell_check_proper_average)
-    pub cell_check_more: Box<dyn Fn(&CellContents,
-                                    &mut Vec<CellCheckSubFailure>)>
+pub trait CellSettings {
+    // Carries out the checks for a particular kind of cell, those in
+    // addition to the standard checks.  For example, if the cell is
+    // holding the name of a probe, then no number checks will be
+    // carried out, whereas if it's a cell containing a number, this
+    // will hold the check(s) for that particular number type,
+    // e.g. SE, or average. cell_check_more must push the failures
+    // onto `failures`.
+    fn cell_check_more(&self,
+                       cell: &CellContents,
+                       failures: &mut Vec<CellCheckSubFailure>);
 }
 
-#[allow(dead_code)]
-#[allow(non_snake_case)]
-pub struct FileSettings {
+pub trait FileSettings {
+    type CellSettingsT : CellSettings;
     // Determines what checks are carried out for a particular kind of
-    // *file*, in addition to the standard checks. Its role is to provide
-    // `CellSettings` depending on the row/column of a cell. (Currently,
-    // only column is actually used, this might change, depending on how
-    // we implement handling of headers.)
+    // *file* (those in addition to the standard checks). Its role is
+    // to provide a `CellSettings` depending on the row/column of a
+    // cell. (Currently, only column is actually used, this might
+    // change, depending on how we implement handling of headers.)
 
-    // FUTURE: header description
-    // ?
-    pub column_to_CellSettings: Box<dyn Fn(&Location)-> CellSettings>
+    // TODO: also add header description (for matching the right
+    // FileSettings) or checks here.
+
+    fn column_to_cellsettings(&self,
+                              loc: &Location) -> Option<&Self::CellSettingsT>;
 }
 
-fn _cell_check_empty(cell: &CellContents) -> Option<CellCheckSubFailure> {
+fn cell_check_empty(cell: &CellContents) -> Option<CellCheckSubFailure> {
     if cell == b"" {
         Some(CellCheckSubFailure { reason: String::from("empty cell") })
     } else {
@@ -58,7 +56,7 @@ fn _cell_check_empty(cell: &CellContents) -> Option<CellCheckSubFailure> {
     }
 }
 
-fn _cell_checks_whitespace(
+fn cell_checks_whitespace(
     cell: &CellContents,
     failures: &mut Vec<CellCheckSubFailure> // out
 ) {
@@ -103,28 +101,28 @@ fn _cell_checks_whitespace(
 }
 
 // Main function for all cell checks.
-fn _cell_checks(
+fn cell_checks<CS: CellSettings>(
     cell: &CellContents,
-    cellsettings: &CellSettings,
+    cellsettings: &CS,
     failures: &mut Vec<CellCheckSubFailure> // out
 ) {
-    if let Some(f) = _cell_check_empty(cell) {
+    if let Some(f) = cell_check_empty(cell) {
         failures.push(f);
         return;
     }
-    _cell_checks_whitespace(cell, failures);
+    cell_checks_whitespace(cell, failures);
     if ! failures.is_empty() {
         return;
     }
     // Now come settings-dependent cell checks:
-    (cellsettings.cell_check_more)(cell, failures);
+    cellsettings.cell_check_more(cell, failures);
 }
 
 
 // Parse the input as CSV and run the checks that run on cells
-fn stream_checks_cells<R: io::Read>(
+fn stream_checks_cells<R: io::Read, S: FileSettings>(
     input: R,
-    settings: FileSettings
+    settings: S
 ) -> impl Iterator<Item = Box<dyn CheckFailure>>
 {
     let mut rb = csv::ReaderBuilder::new();
@@ -141,9 +139,15 @@ fn stream_checks_cells<R: io::Read>(
                 Ok(true) => {
                     for (icell, cell) in record.iter().enumerate() {
                         let loc = Location { col: icell, row: irow };
-                        let cellsettings =
-                            (settings.column_to_CellSettings)(&loc);
-                        _cell_checks(cell, &cellsettings, &mut failures);
+                        if let Some(cellsettings) = settings.column_to_cellsettings(&loc) {
+                            cell_checks(cell, cellsettings, &mut failures);
+                        } else {
+                            failures.push(
+                                CellCheckSubFailure {
+                                    reason: format!(
+                                        "unexpected cell at location {}",
+                                        loc)});
+                        }
                         if ! failures.is_empty() {
                             co.yield_(
                                 Box::new(
@@ -175,17 +179,17 @@ fn stream_checks_cells<R: io::Read>(
 }
 
 
-fn file_checks_cells(
+fn file_checks_cells<F: FileSettings>(
     filepath: &Path,
-    settings: FileSettings
+    settings: F
 ) -> Result<impl Iterator<Item = Box<dyn CheckFailure>>> {
     let f = fs::File::open(filepath)?;
     Ok(stream_checks_cells(io::BufReader::new(f), settings).into_iter())
 }
 
-pub fn file_checks(
+pub fn file_checks<F: FileSettings>(
     filepath: &Path,
-    settings: FileSettings
+    settings: F
 ) -> Result<impl Iterator<Item = Box<dyn CheckFailure>>> {
     // XX crlf part: TODO
     file_checks_cells(filepath, settings)
