@@ -4,8 +4,7 @@
   or further work.
 */
 
-pub use genawaiter::rc::gen;
-pub use genawaiter::*;
+pub use genawaiter::rc::Gen;
 pub mod checkfailure;
 use anyhow::Result; 
 use std::{fs, io};
@@ -136,7 +135,7 @@ fn stream_checks_cells<R: io::Read>(
     let mut failures = Vec::new();
     let mut irow = 0;
     
-    gen!({
+    Gen::new(|co| async move {
         loop {
             match rdr.read_byte_record(&mut record) {
                 Ok(true) => {
@@ -146,13 +145,13 @@ fn stream_checks_cells<R: io::Read>(
                             (settings.column_to_CellSettings)(&loc);
                         _cell_checks(cell, &cellsettings, &mut failures);
                         if ! failures.is_empty() {
-                            yield_!(
+                            co.yield_(
                                 Box::new(
                                     CellCheckFailure {
                                         failures: failures.clone(),
                                         contents: Vec::from(cell),
                                         location: loc
-                                    }) as Box<dyn CheckFailure>);
+                                    }) as Box<dyn CheckFailure>).await;
                             failures.clear();
                         }
                     }
@@ -161,12 +160,12 @@ fn stream_checks_cells<R: io::Read>(
                     return;
                 },
                 Err(e) => {
-                    yield_!(
+                    co.yield_(
                         Box::new(
                             FileCheckFailure {
                                 reason: format!("CSV parsing error: {}",
                                                 e)
-                            }) as Box<dyn CheckFailure>);
+                            }) as Box<dyn CheckFailure>).await;
                     return;
                 }
             }
