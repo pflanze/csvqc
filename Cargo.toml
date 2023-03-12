@@ -16,3 +16,5 @@ bstr_parse = "0.1.0"
 rayon = "1.5.3"
 csv = "1.2.1"
 genawaiter = { version = "0.99.1", default-features = false }
+regex = "1.4.6"
+lazy_static = "1.4.0"
