@@ -4,9 +4,6 @@
   or further work.
  */
 
-#[macro_use]
-extern crate genawaiter;
-
 mod check;
 use anyhow::Result;
 use check::{CellContents, FileSettings, CellSettings}; 

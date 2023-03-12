@@ -5,7 +5,9 @@
 */
 
 pub use genawaiter::rc::gen;
-pub use genawaiter::rc_producer;
+pub use genawaiter::*;
+pub use ::genawaiter::*;
+pub use ::genawaiter::rc_producer;
 pub mod checkfailure;
 use anyhow::Result; 
 use std::{fs, io};
