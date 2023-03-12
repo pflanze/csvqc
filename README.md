@@ -64,5 +64,5 @@ command line only.
 ## License & Contact
 
 This code is © Christian Jaeger <ch@christianjaeger.ch> and licensed
-under the GNU Public License version 3. Please contact me for other
+under the GNU Public License version 3.0. Please contact me for other
 licenses or further work.
