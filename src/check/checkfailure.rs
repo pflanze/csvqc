@@ -52,7 +52,12 @@ impl CheckFailure for CellCheckFailure {
         let mut s = self.reason();
         s.push_str(&format!("  in cell {}", self.location));
         s.push('\n');
-        s.push_str(&format!("  contents: {:?}", self.contents));
+        match std::str::from_utf8(&self.contents) {
+            Ok(sr) =>
+                s.push_str(&format!("  contents: {:?}", sr)),
+            Err(_) =>
+                s.push_str(&format!("  contents: {:?}", self.contents))
+        }
         s
     }
 }
