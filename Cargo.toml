@@ -16,3 +16,4 @@ csv = "1.2.1"
 genawaiter = { version = "0.99.1", default-features = false }
 regex = "1.4.6"
 lazy_static = "1.4.0"
+clap = { version = "3.2.23", features = ["derive"] }
