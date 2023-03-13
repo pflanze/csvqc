@@ -5,13 +5,15 @@
  */
 
 mod check;
-use anyhow::Result;
+use anyhow::{Result, Context, bail};
 use check::{CellContents, FileSettings, CellSettings}; 
 use check::checkfailure::{location::Location, CellCheckSubFailure};
 use std::path::PathBuf;
 use bstr_parse::BStrParse;
 use regex::bytes::Regex;
 use lazy_static::lazy_static;
+use clap::Parser;
+
 
 // Check that the cell consists of just a natural number in the u32 range
 fn cell_check_id_u32(
@@ -97,16 +99,35 @@ impl FileSettings for FileSettingsByCol {
 }
 
 
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+   /// Path to the file to be checked
+   #[clap(value_parser, required(true))]
+   file_path: PathBuf,
+}
+
+
 fn main() -> Result<()> {
+    let args = Args::parse();
+    
     let cellsettings_by_col = STRAIN_FILE_CELLCHECKER_BY_COL.iter().map(
         |chk| { CellCheckerFn(*chk)}).collect::<Vec<_>>();
     
     let failures = check::file_checks(
-        &PathBuf::from("/home/chrisrust/tmp/Strain_062521_headers.csv"),
+        &args.file_path,
         FileSettingsByCol(cellsettings_by_col)
-    )?;
+    ).with_context(|| format!("can't check file {:?}", args.file_path))?;
+
+    let mut num_failures = 0;
     for failure in failures {
+        num_failures += 1;
         println!("Failure: {}", failure.plaintext_message());
     }
+
+    if num_failures > 0 {
+        bail!("found {} check violations", num_failures);
+    }
+        
     Ok(())
 }
