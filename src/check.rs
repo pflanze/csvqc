@@ -84,7 +84,9 @@ fn cell_checks_whitespace(
                     for (i2, c) in rem.chars().enumerate() {
                         if c.is_whitespace() {
                             failures.push(CellCheckSubFailure {
-                                reason: format!("whitespace (in cell with unicode) at pos {}", i+i2)
+                                reason: format!(
+                                    "whitespace (in cell with unicode) \
+                                     at pos {}", i+i2)
                             });
                             return;
                         }
@@ -139,7 +141,9 @@ fn stream_checks_cells<R: io::Read, S: FileSettings>(
                 Ok(true) => {
                     for (icell, cell) in record.iter().enumerate() {
                         let loc = Location { col: icell, row: irow };
-                        if let Some(cellsettings) = settings.column_to_cellsettings(&loc) {
+                        if let Some(cellsettings) =
+                            settings.column_to_cellsettings(&loc)
+                        {
                             cell_checks(cell, cellsettings, &mut failures);
                         } else {
                             failures.push(

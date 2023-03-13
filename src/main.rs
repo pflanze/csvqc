@@ -24,7 +24,8 @@ fn cell_check_id_u32(
         Ok(n) => {
             if n < 1 {
                 failures.push(CellCheckSubFailure {
-                    reason: format!("cell_check_id_u32: IDs must be natural numbers, starting from 1; got {}", n) });
+                    reason: format!("cell_check_id_u32: IDs must be natural numbers, \
+                                     starting from 1; got {}", n) });
             }
         },
         Err(e) => {
@@ -50,7 +51,8 @@ fn cell_check_bxname(
     }
     if ! RE.is_match(cell) {
         failures.push(CellCheckSubFailure {
-            reason: format!("cell_check_bxname: not matching {}", CELL_CHECK_BXNAME_RE)});
+            reason: format!("cell_check_bxname: not matching {}",
+                            CELL_CHECK_BXNAME_RE)});
     }
 }
 
@@ -70,7 +72,9 @@ fn cell_check_symbol_or_alias(
     // ... whatever ...   
 }
 
-const STRAIN_FILE_CELLCHECKER_BY_COL : [fn(&CellContents, &mut Vec<CellCheckSubFailure>); 6] = [
+const STRAIN_FILE_CELLCHECKER_BY_COL : [
+    fn(&CellContents, &mut Vec<CellCheckSubFailure>); 6
+] = [
     cell_check_id_u32, // Id
     cell_check_bxname, // Name
     cell_check_maybe_bxname, // Name2
