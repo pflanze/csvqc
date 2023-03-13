@@ -12,7 +12,6 @@ thiserror = "1.0.37"
 log = "0.4.8"
 env_logger = "0.8.4"
 bstr_parse = "0.1.0"
-rayon = "1.5.3"
 csv = "1.2.1"
 genawaiter = { version = "0.99.1", default-features = false }
 regex = "1.4.6"
