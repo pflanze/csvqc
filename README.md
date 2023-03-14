@@ -3,7 +3,7 @@
 This is the beginnings or a skeleton or framework for a verification
 tool for CSV files. The aim is for it to be fast enough to verify
 files as they are being uploaded by users to a server, i.e. without
-adding any additional waiting to the uload itself and without having
+adding any additional waiting to the upload itself and without having
 to upload the whole file if there are issues in the file. It currently
 handles about a saturated 1 gbit/s network connection on a reasonably
 fast server, while using a single CPU core. Of course the speed
