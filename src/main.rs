@@ -123,7 +123,7 @@ fn main() -> Result<()> {
         FileSettingsByCol(cellsettings_by_col)
     ).with_context(|| format!("can't check file {:?}", args.file_path))?;
 
-    let mut num_failures = 0;
+    let mut num_failures : u64 = 0;
     for failure in failures {
         num_failures += 1;
         println!("Failure: {}", failure.plaintext_message());
