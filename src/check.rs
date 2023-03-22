@@ -28,9 +28,9 @@ pub trait CellSettings {
     // will hold the check(s) for that particular number type,
     // e.g. SE, or average. cell_check_more must push the failures
     // onto `failures`.
-    fn cell_check_more(&self,
-                       cell: &CellContents,
-                       failures: &mut Vec<CellCheckSubFailure>);
+    fn cell_checks_more(&self,
+                        cell: &CellContents,
+                        failures: &mut Vec<CellCheckSubFailure>);
 }
 
 pub trait FileSettings {
@@ -117,7 +117,7 @@ fn cell_checks<CS: CellSettings>(
         return;
     }
     // Now come settings-dependent cell checks:
-    cellsettings.cell_check_more(cell, failures);
+    cellsettings.cell_checks_more(cell, failures);
 }
 
 

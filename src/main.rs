@@ -16,7 +16,7 @@ use clap::Parser;
 
 
 // Check that the cell consists of just a natural number in the u32 range
-fn cell_check_id_u32(
+fn cell_checks_id_u32(
     cell: &CellContents,
     failures: &mut Vec<CellCheckSubFailure>
 ) {
@@ -42,7 +42,7 @@ fn cell_is_NA(cell: &CellContents) -> bool {
 
 static CELL_CHECK_BXNAME_RE : &'static str = r"^(?:\d+|/\w+|[A-Za-z_<.>()-]+)+$";
 
-fn cell_check_bxname(
+fn cell_checks_bxname(
     cell: &CellContents,
     failures: &mut Vec<CellCheckSubFailure>
 ) {
@@ -56,16 +56,16 @@ fn cell_check_bxname(
     }
 }
 
-fn cell_check_optional_bxname(
+fn cell_checks_optional_bxname(
     cell: &CellContents,
     failures: &mut Vec<CellCheckSubFailure>
 ) {
     if ! cell_is_NA(cell) {
-        cell_check_bxname(cell, failures)
+        cell_checks_bxname(cell, failures)
     }
 }
 
-fn cell_check_symbol_or_alias(
+fn cell_checks_symbol_or_alias(
     _cell: &CellContents,
     _failures: &mut Vec<CellCheckSubFailure>
 ) {
@@ -75,20 +75,20 @@ fn cell_check_symbol_or_alias(
 const STRAIN_FILE_CELLCHECKER_BY_COL : [
     fn(&CellContents, &mut Vec<CellCheckSubFailure>); 6
 ] = [
-    cell_check_id_u32, // Id
-    cell_check_bxname, // Name
-    cell_check_optional_bxname, // Name2
-    cell_check_id_u32, // SpeciesId
-    cell_check_symbol_or_alias, // Symbol
-    cell_check_symbol_or_alias, // Alias
+    cell_checks_id_u32, // Id
+    cell_checks_bxname, // Name
+    cell_checks_optional_bxname, // Name2
+    cell_checks_id_u32, // SpeciesId
+    cell_checks_symbol_or_alias, // Symbol
+    cell_checks_symbol_or_alias, // Alias
 ];
 
 struct CellCheckerFn(fn(&CellContents, &mut Vec<CellCheckSubFailure>));
 
 impl CellSettings for CellCheckerFn {
-    fn cell_check_more(&self,
-                       cell: &CellContents,
-                       failures: &mut Vec<CellCheckSubFailure>) {
+    fn cell_checks_more(&self,
+                        cell: &CellContents,
+                        failures: &mut Vec<CellCheckSubFailure>) {
         (self.0)(cell, failures);
     }
 }
