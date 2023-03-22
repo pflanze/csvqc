@@ -48,7 +48,7 @@ pub trait FileSettings {
                                 loc: &Location) -> Option<&Self::CellSettingsT>;
 }
 
-fn cell_check_empty(cell: &CellContents) -> Option<CellCheckSubFailure> {
+fn cell_check_nonempty(cell: &CellContents) -> Option<CellCheckSubFailure> {
     if cell == b"" {
         Some(CellCheckSubFailure { reason: String::from("empty cell") })
     } else {
@@ -108,7 +108,7 @@ fn cell_checks<CS: CellSettings>(
     cellsettings: &CS,
     failures: &mut Vec<CellCheckSubFailure> // out
 ) {
-    if let Some(f) = cell_check_empty(cell) {
+    if let Some(f) = cell_check_nonempty(cell) {
         failures.push(f);
         return;
     }
