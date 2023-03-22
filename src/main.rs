@@ -97,7 +97,7 @@ struct FileSettingsByCol(Vec<CellCheckerFn>);
 
 impl FileSettings for FileSettingsByCol {
     type CellSettingsT = CellCheckerFn;
-    fn column_to_cellsettings(&self, loc: &Location) -> Option<&CellCheckerFn> {
+    fn location_to_cellsettings(&self, loc: &Location) -> Option<&CellCheckerFn> {
         self.0.get(loc.col)
     }
 }

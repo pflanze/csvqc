@@ -44,8 +44,8 @@ pub trait FileSettings {
     // TODO: also add header description (for matching the right
     // FileSettings) or checks here.
 
-    fn column_to_cellsettings(&self,
-                              loc: &Location) -> Option<&Self::CellSettingsT>;
+    fn location_to_cellsettings(&self,
+                                loc: &Location) -> Option<&Self::CellSettingsT>;
 }
 
 fn cell_check_empty(cell: &CellContents) -> Option<CellCheckSubFailure> {
@@ -142,7 +142,7 @@ fn stream_checks_cells<R: io::Read, S: FileSettings>(
                     for (icell, cell) in record.iter().enumerate() {
                         let loc = Location { col: icell, row: irow };
                         if let Some(cellsettings) =
-                            settings.column_to_cellsettings(&loc)
+                            settings.location_to_cellsettings(&loc)
                         {
                             cell_checks(cell, cellsettings, &mut failures);
                         } else {
