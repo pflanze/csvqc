@@ -56,7 +56,7 @@ fn cell_check_bxname(
     }
 }
 
-fn cell_check_maybe_bxname(
+fn cell_check_optional_bxname(
     cell: &CellContents,
     failures: &mut Vec<CellCheckSubFailure>
 ) {
@@ -77,7 +77,7 @@ const STRAIN_FILE_CELLCHECKER_BY_COL : [
 ] = [
     cell_check_id_u32, // Id
     cell_check_bxname, // Name
-    cell_check_maybe_bxname, // Name2
+    cell_check_optional_bxname, // Name2
     cell_check_id_u32, // SpeciesId
     cell_check_symbol_or_alias, // Symbol
     cell_check_symbol_or_alias, // Alias
