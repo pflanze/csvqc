@@ -43,7 +43,7 @@ command line only.
   FastCGI, CGI, or other server integration protocol, and adding a
   simple HTML/JavaScript web app for the upload that can show the back
   stream of check failures while still uploading (to enable a manual
-  decision to cancelling while still uploading).
+  decision to cancel while still uploading).
 
 * If interesting for users, allow client side verification in the
   user's browser without upload, via WASM.
